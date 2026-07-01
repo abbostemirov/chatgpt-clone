@@ -12,6 +12,10 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Build Docker Image
+        run: |
+            echo "=== Docker imij qurish boshlandi ==="
+            docker build --network=host -t spring-app:latest .
       # 3. GitHub'dagi eng oxirgi kodni Multipass serverimizga yuklab olish
       - name: Checkout repository code
         uses: actions/checkout@v4
