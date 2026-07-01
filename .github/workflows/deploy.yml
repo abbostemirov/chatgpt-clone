@@ -1,0 +1,46 @@
+name: Java Spring Boot CI/CD Pipeline
+
+# 1. Pipeline qachon ishga tushsin? (main branchga kod push bo'lganda)
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    # 2. Bu yerda 'ubuntu-latest' emas, 'self-hosted' yozamiz. 
+    # Bu GitHub'ga: "Ishni mening Multipass serverim ichida bajar" degani.
+    runs-on: self-hosted
+
+    steps:
+      # 3. GitHub'dagi eng oxirgi kodni Multipass serverimizga yuklab olish
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      # 4. Docker imijni biz yozgan Multi-stage Dockerfile orqali qurish
+      - name: Build Docker Image
+        run: |
+          echo "=== Docker imij qurish boshlandi ==="
+          docker build -t spring-app:latest .
+
+      # 5. Eski konteynerni o'chirib, yangisini ishga tushirish (Zero-downtime o'xshash simulyatsiya)
+      - name: Deploy Container to Docker
+        run: |
+          echo "=== Eski konteyner tekshirilmoqda ==="
+          # Agar eski konteyner ishlab turgan bo'lsa to'xtatamiz va o'chiramiz. 
+          # '|| true' xatolik bersa ham pipeline to'xtab qolmasligi uchun kerak.
+          docker stop spring-container || true
+          docker rm spring-container || true
+          
+          echo "=== Yangi konteyner ishga tushirilmoqda ==="
+          docker run -d \
+            -p 8080:8080 \
+            --name spring-container \
+            --restart always \
+            spring-app:latest
+
+      # 6. Konteyner muvaffaqiyatli yonganini tekshirish
+      - name: Verify Deployment
+        run: |
+          sleep 5
+          docker ps | grep spring-container
+          echo "=== CI/CD Muvaffaqiyatli yakunlandi! ==="
