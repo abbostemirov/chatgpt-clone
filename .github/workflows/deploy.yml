@@ -22,7 +22,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      # DOCKER BUILD bosqichini olib tashlaymiz, uni endi docker-compose bajaradi.
 
       - name: Deploy with Docker Compose
         run: |
