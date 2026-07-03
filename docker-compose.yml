@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # 1. Ma'lumotlar bazasi konteyneri
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: devdb
+    ports:
+      - "5432:5432" # Agar lokal IDE dan ulanmoqchi bo'lsang kerak
+    volumes:
+      - db_data:/var/lib/postgresql/data # DB ma'lumotlari o'chib ketmasligi uchun
+
+  # 2. Spring Boot ilovamiz konteyneri
+  app:
+    build: . # Shu papkadagi Dockerfile orqali image yasaydi
+    container_name: spring_app
+    depends_on:
+      - db # Oldin db yonsin, keyin app
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    restart: always
+
+  # 3. Nginx Reverse Proxy konteyneri
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    ports:
+      - "80:80" # Faqat 80-portni ochiq qoldiramiz
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf # Biz yozgan config'ni ulash
+    depends_on:
+      - app
+
+volumes:
+  db_data: # Docker ichida virtual disk (xotira)

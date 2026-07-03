@@ -3,11 +3,11 @@ name: CI/CD Pipeline to Multipass
 on:
   push:
     branches:
-      - main # main branch'ga kod tushganda ishlaydi
+      - main
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted # DIQQAT! Bu sening Multipass serveringda ishlashini bildiradi.
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Code
@@ -16,18 +16,17 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Build with Maven
-        run: mvn clean package -DskipTests # JAR fayl yaratamiz
+        run: mvn clean package -DskipTests
 
-      - name: Build Docker Image
-        run: docker build -t my-spring-app .
+      # DOCKER BUILD bosqichini olib tashlaymiz, uni endi docker-compose bajaradi.
 
-      - name: Deploy Container
+      - name: Deploy with Docker Compose
         run: |
-          # Agar eski konteyner ishlab turgan bo'lsa, o'chiramiz (downtime bilan sodda usul)
-          docker rm -f my-app-container || true
-          # Yangi konteynerni 8080 portda ishga tushiramiz
-          docker run -d -p 8080:8080 --name my-app-container my-spring-app
+          # Oldingi ishlab turgan eski konteynerlarni to'xtatamiz va tozalaymiz
+          docker compose down
+          # Yangi kod asosida image'ni qayta build qilib, fonga (daemon) ishga tushiramiz
+          docker compose up -d --build
