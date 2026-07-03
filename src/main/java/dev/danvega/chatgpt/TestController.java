@@ -9,9 +9,9 @@ public class TestController {
 
 
 
-    @GetMapping("/test")
+    @GetMapping("/health")
     public String test() {
-        return "test";
+        return "UP";
     }
 
 
