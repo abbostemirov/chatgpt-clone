@@ -25,7 +25,5 @@ jobs:
 
       - name: Deploy with Docker Compose
         run: |
-          # Oldingi ishlab turgan eski konteynerlarni to'xtatamiz va tozalaymiz
           docker compose down
-          # Yangi kod asosida image'ni qayta build qilib, fonga (daemon) ishga tushiramiz
           docker compose up -d --build
