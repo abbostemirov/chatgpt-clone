@@ -20,7 +20,9 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: |
+            chmod +x mvnw # Faylga ishga tushish (execute) huquqini beramiz (Windows'dan push qilinganda huquq yo'qolib qolmasligi uchun)
+            ./mvnw clean package -DskipTests # "mvn" emas, "./mvnw" ishlatamiz
 
       # DOCKER BUILD bosqichini olib tashlaymiz, uni endi docker-compose bajaradi.
 
