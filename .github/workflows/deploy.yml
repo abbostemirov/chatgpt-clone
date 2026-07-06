@@ -48,8 +48,7 @@ jobs:
       - name: Login to GHCR on Server
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Deploy with Docker Compose
+      - name: Deploy with Zero-Downtime
         run: |
-          docker compose pull # Tayyor Imageni serverga tortamiz
-          docker compose down
-          docker compose up -d # Endi --build shart emas!
+            chmod +x deploy.sh # Skriptga ishga tushish huquqini beramiz
+            ./deploy.sh

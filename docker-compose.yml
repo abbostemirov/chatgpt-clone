@@ -15,25 +15,41 @@ services:
       - db_data:/var/lib/postgresql/data # DB ma'lumotlari o'chib ketmasligi uchun
 
   # 2. Spring Boot ilovamiz konteyneri
-  app:
-    image: ghcr.io/abbostemirov/chatgpt-clone/spring-app:latest
-    container_name: spring_app
-    depends_on:
-      - db # Oldin db yonsin, keyin app
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-    restart: always
+  # ... db, prometheus, grafana o'zgarishsiz qoladi ...
 
-  # 3. Nginx Reverse Proxy konteyneri
+  app-blue:
+    image: ghcr.io/abbostemirov/chatgpt-clone/spring-app:latest # O'zingni loginingni yoz
+    container_name: spring_app_blue
+    depends_on:
+      - db
+    restart: always
+    healthcheck: # Konteyner yondimi yoki yo'qmi tekshiradi
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app-green:
+    image: ghcr.io/abbostemirov/chatgpt-clone/spring-app:latest # O'zingni loginingni yoz
+    container_name: spring_app_green
+    depends_on:
+      - db
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   nginx:
     image: nginx:alpine
     container_name: nginx_proxy
     ports:
-      - "80:80" # Faqat 80-portni ochiq qoldiramiz
+      - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf # Biz yozgan config'ni ulash
+      - ./nginx:/etc/nginx/conf.d # Butun nginx papkasini ulaymiz
     depends_on:
-      - app
+      - app-blue
 
   # ... (oldindan bor bo'lgan db, app, nginx xizmatlari turaversin) ...
 
