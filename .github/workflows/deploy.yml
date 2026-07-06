@@ -19,7 +19,14 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # DOCKER BUILD bosqichini olib tashlaymiz, uni endi docker-compose bajaradi.
+
       - name: Deploy with Docker Compose
         run: |
+          # Oldingi ishlab turgan eski konteynerlarni to'xtatamiz va tozalaymiz
           docker compose down
+          # Yangi kod asosida image'ni qayta build qilib, fonga (daemon) ishga tushiramiz
           docker compose up -d --build
