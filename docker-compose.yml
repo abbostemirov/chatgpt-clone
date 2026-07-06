@@ -16,7 +16,7 @@ services:
 
   # 2. Spring Boot ilovamiz konteyneri
   app:
-    build: . # Shu papkadagi Dockerfile orqali image yasaydi
+    image: ghcr.io/abbostemirov/chatgpt-clone/spring-app:latest
     container_name: spring_app
     depends_on:
       - db # Oldin db yonsin, keyin app
